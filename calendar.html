@@ -1,0 +1,62 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--b:#191919;--t:#e3e3e3;--m:#9b9a97;--d:#2f2f2f;--g:#4a9e6e;--r:#c75050;--a:#c99a2e;--gb:rgba(74,158,110,.1);--rb:rgba(199,80,80,.1);--gb2:rgba(74,158,110,.22);--rb2:rgba(199,80,80,.22)}
+*{margin:0;box-sizing:border-box}html,body{width:100%;background:var(--b);color:var(--t);font:13px/1 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+body{padding:12px 16px}
+.hd{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--d);margin-bottom:8px}
+.hd h2{font:600 14px/1 inherit;letter-spacing:-.3px}
+.hd button{background:0;border:1px solid var(--d);color:var(--m);padding:3px 12px;cursor:pointer;font:12px inherit}
+.hd button:hover{color:var(--t)}
+.st{display:flex;gap:20px;font-size:9px;color:var(--m);padding:8px 0;border-bottom:1px solid var(--d);margin-bottom:6px}
+.st b{color:var(--t);font:600 12px SFMono-Regular,"Roboto Mono",Menlo,monospace}
+.dw{display:grid;grid-template-columns:repeat(7,1fr)}
+.dw div{text-align:center;font:500 8px/1 inherit;text-transform:uppercase;letter-spacing:1px;color:var(--m);padding:6px 0}
+.gr{display:grid;grid-template-columns:repeat(7,1fr)}
+.dy{aspect-ratio:1;padding:6px 8px;border:.5px solid var(--d);display:flex;flex-direction:column}
+.dy.x{opacity:.15}
+.dy .dt{font-size:9px;color:var(--m)}
+.dy .pl{font:600 13px/1 SFMono-Regular,"Roboto Mono",Menlo,monospace;margin-top:5px;letter-spacing:-.3px}
+.dy.w{background:var(--gb)}.dy.w .pl{color:var(--g)}
+.dy.l{background:var(--rb)}.dy.l .pl{color:var(--r)}
+.dy.bw{background:var(--gb2)}.dy.bl{background:var(--rb2)}
+.dy.td{box-shadow:inset 0 0 0 1.5px var(--a)}
+.dy .cs{margin-top:auto}
+.tc{font-size:8px;padding:2px 0;display:flex;justify-content:space-between;border-top:.5px solid var(--d)}
+.tc b{font-weight:600;color:var(--m)}.tc em{font:normal 8px SFMono-Regular,monospace;font-style:normal}
+.tc .p{color:var(--g)}.tc .n{color:var(--r)}
+.ft{display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--d);font-size:10px;color:var(--m)}
+.ft .v{font:700 16px SFMono-Regular,"Roboto Mono",Menlo,monospace}
+.ft .p{color:var(--g)}.ft .n{color:var(--r)}
+</style></head><body>
+<div class="hd"><button onclick="cm(-1)">&larr;</button><h2 id="ml"></h2><button onclick="cm(1)">&rarr;</button></div>
+<div class="st" id="st"></div>
+<div class="dw"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+<div class="gr" id="gr"></div>
+<div class="ft" id="ft"></div>
+<script src="data.js"></script>
+<script>
+const dp=D.daily_pnl;let cd=new Date();
+const ds=Object.keys(dp).sort();if(ds.length){const l=new Date(ds[ds.length-1]+'T12:00:00');cd=new Date(l.getFullYear(),l.getMonth(),1)}
+function cm(d){cd.setMonth(cd.getMonth()+d);rn()}
+const f=n=>{const a=Math.abs(n),s=a>=1000?a.toLocaleString('en-US',{maximumFractionDigits:0}):a.toFixed(0);return n>=0?'+$'+s:'-$'+s};
+function rn(){
+const y=cd.getFullYear(),m=cd.getMonth();
+document.getElementById('ml').textContent=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m]+' '+y;
+const fd=new Date(y,m,1).getDay(),dm=new Date(y,m+1,0).getDate(),td=new Date();
+let mp=0,mw=0,ml=0,mt=0,h='';
+for(let i=0;i<fd;i++)h+='<div class="dy x"></div>';
+for(let d=1;d<=dm;d++){
+const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+const dd=dp[ds];const it=td.getFullYear()===y&&td.getMonth()===m&&td.getDate()===d;
+let c='dy';if(it)c+=' td';
+if(dd){const n=dd.net;mp+=n;mt+=dd.trades.length;
+if(n>0){mw++;c+=Math.abs(n)>1000?' bw':' w'}else if(n<0){ml++;c+=Math.abs(n)>1000?' bl':' l'}
+let tc='';for(const t of dd.trades){tc+=`<div class="tc"><b>${t.ticker}</b><em class="${t.pnl>=0?'p':'n'}">${f(t.pnl)}</em></div>`}
+h+=`<div class="${c}"><div class="dt">${d}</div><div class="pl">${f(n)}</div><div class="cs">${tc}</div></div>`
+}else h+=`<div class="${c}"><div class="dt">${d}</div></div>`}
+document.getElementById('gr').innerHTML=h;
+const tc=mp>=0?'p':'n';
+document.getElementById('ft').innerHTML=`<div>Monthly P&L<br><span class="v ${tc}">${f(mp)}</span></div><div style="text-align:right">${mt} trades<br><span class="v">${mw}W / ${ml}L</span></div>`;
+document.getElementById('st').innerHTML=`Trades <b>${mt}</b> Win Days <b>${mw}</b> Loss Days <b>${ml}</b> Rate <b>${mw+ml>0?Math.round(mw/(mw+ml)*100):0}%</b>`;
+}rn();
+</script></body></html>
