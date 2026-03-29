@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+:root{--b:#191919;--t:#e3e3e3;--m:#9b9a97;--d:#2f2f2f;--g:#4a9e6e;--r:#c75050}
+*{margin:0;box-sizing:border-box}html,body{width:100%;height:100%;background:var(--b);color:var(--t);font:13px/1 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+body{display:flex;flex-direction:column;padding:16px 20px}
+.h{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px;border-bottom:1px solid var(--d);margin-bottom:12px}
+.h span{font:500 10px/1 inherit;text-transform:uppercase;letter-spacing:1px;color:var(--m)}
+.h b{font:600 18px/1 SFMono-Regular,"Roboto Mono",Menlo,monospace}
+.p{color:var(--g)}.n{color:var(--r)}
+.w{flex:1;min-height:0;position:relative}
+.f{display:flex;gap:32px;padding-top:12px;border-top:1px solid var(--d);margin-top:12px;font:10px/1 inherit;color:var(--m)}
+.f b{font:600 13px/1 SFMono-Regular,"Roboto Mono",Menlo,monospace;color:var(--t);display:block;margin-top:3px}
+</style></head><body>
+<div class="h"><span>Equity Curve</span><b id="tv"></b></div>
+<div class="w"><canvas id="c"></canvas></div>
+<div class="f" id="f"></div>
+<script src="data.js"></script>
+<script>
+const eq=D.equity_curve,s=D.statistics,last=eq[eq.length-1]?.balance||0;
+const el=document.getElementById('tv');
+el.className=last>=0?'p':'n';
+el.textContent=(last>=0?'+$':'-$')+Math.abs(last).toLocaleString('en-US',{minimumFractionDigits:2});
+const ctx=document.getElementById('c').getContext('2d');
+const gr=ctx.createLinearGradient(0,0,0,400);
+gr.addColorStop(0,last>=0?'rgba(74,158,110,.15)':'rgba(199,80,80,.15)');
+gr.addColorStop(1,'rgba(0,0,0,0)');
+new Chart(ctx,{type:'line',data:{labels:eq.map(e=>e.date),datasets:[{data:eq.map(e=>e.balance),borderColor:last>=0?'#4a9e6e':'#c75050',backgroundColor:gr,fill:true,tension:.2,pointRadius:0,pointHoverRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{titleFont:{family:'SFMono-Regular,monospace',size:10},bodyFont:{family:'SFMono-Regular,monospace',size:12},callbacks:{label:c=>'$'+c.parsed.y.toLocaleString('en-US',{minimumFractionDigits:2})}}},scales:{x:{ticks:{color:'#5a5a5a',maxTicksLimit:8,font:{size:9,family:'SFMono-Regular,monospace'}},grid:{display:false},border:{display:false}},y:{ticks:{color:'#5a5a5a',callback:v=>v>=0?'$'+v.toLocaleString():'-$'+Math.abs(v).toLocaleString(),font:{size:9,family:'SFMono-Regular,monospace'}},grid:{color:'#252525',lineWidth:.5},border:{display:false}}}}});
+document.getElementById('f').innerHTML=`<div>Win Rate<b>${s.win_rate}%</b></div><div>Trades<b>${s.total_trades}</b></div><div>Profit Factor<b>${s.profit_factor}</b></div><div>Max Drawdown<b>-$${s.max_drawdown.toLocaleString()}</b></div>`;
+</script></body></html>
