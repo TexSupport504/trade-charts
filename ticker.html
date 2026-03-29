@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<style>
+:root{--b:#191919;--t:#e3e3e3;--m:#9b9a97;--d:#2f2f2f;--g:#4a9e6e;--r:#c75050}
+*{margin:0;box-sizing:border-box}html,body{width:100%;height:100%;background:var(--b);color:var(--t);font:13px/1 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+body{display:flex;flex-direction:column;padding:12px 16px}
+.h{font:500 10px/1 inherit;text-transform:uppercase;letter-spacing:1px;color:var(--m);padding-bottom:10px;border-bottom:1px solid var(--d);margin-bottom:4px}
+.w{flex:1;min-height:0;position:relative}
+</style></head><body>
+<div class="h">P&L by Ticker</div>
+<div class="w"><canvas id="c"></canvas></div>
+<script src="data.js"></script>
+<script>
+const bt=D.by_ticker,s=Object.entries(bt).sort((a,b)=>b[1].total-a[1].total);
+new Chart(document.getElementById('c'),{type:'bar',data:{labels:s.map(e=>e[0]),datasets:[{data:s.map(e=>e[1].total),backgroundColor:s.map(e=>e[1].total>=0?'#4a9e6e':'#c75050'),barThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'$'+c.parsed.x.toLocaleString('en-US',{minimumFractionDigits:2})+' ('+bt[c.label].count+' trades)'}}},scales:{x:{ticks:{color:'#5a5a5a',callback:v=>'$'+v.toLocaleString(),font:{size:9,family:'SFMono-Regular,monospace'}},grid:{color:'#252525',lineWidth:.5},border:{display:false}},y:{ticks:{color:'#c8c8c8',font:{weight:'600',size:11}},grid:{display:false},border:{display:false}}}}});
+</script></body></html>
